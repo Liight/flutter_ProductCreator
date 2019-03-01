@@ -6,7 +6,7 @@ import './product_control.dart';
 class ProductManager extends StatefulWidget {
   final String startingProduct; // declares immutable string
 
-  ProductManager({this.startingProduct = 'Sweets Tester'}) {
+  ProductManager({this.startingProduct}) {
     // binds the startingProduct(above) to this class
     print('[ProductManager Widget] Constructor');
   }
@@ -25,8 +25,10 @@ class _ProductManagerState extends State<ProductManager> {
   void initState() {
     // initialises the state in this class,
     // it will run before the build class reducing the need for a re-render
+    if (widget.startingProduct != null){
+      _products.add(widget.startingProduct); // Add to List widget 
+    }
     print('[_ProductManagerState Widget] initState()');
-    _products.add(widget.startingProduct); // Add to List widget
     super
         .initState(); // calls the State (this class extends State) as a constructor before overrides
   }
@@ -52,7 +54,7 @@ class _ProductManagerState extends State<ProductManager> {
           margin: EdgeInsets.all(10.0),
           child: ProductControl(_addProduct),
         ),
-        Products(_products)
+        Expanded(child: Products(_products)) // expanded takes up available remaining space on the screen
       ],
     );
   }
