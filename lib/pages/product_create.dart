@@ -78,7 +78,6 @@ class _ProductCreatePage extends State<ProductCreatePage> {
           SizedBox(height: 10.0),
           RaisedButton(
             child: Text('Save'),
-            color: Theme.of(context).accentColor,
             textColor: Colors.white,
             onPressed: _submitForm,
           )
