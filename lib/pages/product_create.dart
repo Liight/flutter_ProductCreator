@@ -76,11 +76,19 @@ class _ProductCreatePage extends State<ProductCreatePage> {
           _buildDescriptionTextField(),
           _buildPriceTextField(),
           SizedBox(height: 10.0),
-          RaisedButton(
-            child: Text('Save'),
-            textColor: Colors.white,
-            onPressed: _submitForm,
-          )
+          // RaisedButton(
+          //   child: Text('Save'),
+          //   textColor: Colors.white,
+          //   onPressed: _submitForm,
+          // )
+          GestureDetector(
+            onTap: _submitForm,
+            child: Container(
+              color: Colors.green,
+              padding: EdgeInsets.all(5.0),
+              child: Text('My Button'),
+            ),
+          ),
         ],
       ),
     );
