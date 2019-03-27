@@ -7,14 +7,17 @@ class ProductCreatePage extends StatefulWidget {
 
   @override
   State<StatefulWidget> createState() {
-    return _ProductCreatePage();
+    return _ProductCreatePageState();
   }
 }
 
-class _ProductCreatePage extends State<ProductCreatePage> {
-  String _titleValue;
-  String _descriptionValue;
-  double _priceValue;
+class _ProductCreatePageState extends State<ProductCreatePage> {
+  final Map<String, dynamic> _formData = {
+    'title': null,
+    'description': null,
+    'price': null,
+    'image': 'assets/food.jpg'
+  };
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   Widget _buildTitleTextField() {
@@ -22,64 +25,54 @@ class _ProductCreatePage extends State<ProductCreatePage> {
       decoration: InputDecoration(labelText: 'Product Title'),
       validator: (String value) {
         if (value.isEmpty || value.length < 5) {
-          return 'Title is required and should be 5+ characters long';
+          return 'Title is required and should be 5+ characters long.';
         }
       },
       onSaved: (String value) {
-        setState(() {
-          _titleValue = value;
-        });
+        _formData['title'] = value;
       },
     );
   }
 
   Widget _buildDescriptionTextField() {
     return TextFormField(
+      maxLines: 4,
       decoration: InputDecoration(labelText: 'Product Description'),
       validator: (String value) {
+        // if (value.trim().length <= 0) {
         if (value.isEmpty || value.length < 10) {
-          return 'Description is required and should be 10+ characters long';
+          return 'Description is required and should be 10+ characters long.';
         }
       },
-      maxLines: 4,
       onSaved: (String value) {
-        setState(() {
-          _descriptionValue = value;
-        });
+        _formData['description'] = value;
       },
     );
   }
 
   Widget _buildPriceTextField() {
     return TextFormField(
+      keyboardType: TextInputType.number,
       decoration: InputDecoration(labelText: 'Product Price'),
       validator: (String value) {
+        // if (value.trim().length <= 0) {
         if (value.isEmpty ||
             !RegExp(r'^(?:[1-9]\d*|0)?(?:\.\d+)?$').hasMatch(value)) {
-          return 'Price is required and should be a number';
+          return 'Price is required and should be a number.';
         }
       },
-      keyboardType: TextInputType.number,
       onSaved: (String value) {
-        setState(() {
-          _priceValue = double.parse(value);
-        });
+        _formData['price'] = double.parse(value);
       },
     );
   }
 
   void _submitForm() {
-    if (_formKey.currentState.validate()) {
+    if (!_formKey.currentState.validate()) {
       return;
     }
     _formKey.currentState.save();
-    final Map<String, dynamic> product = {
-      'title': _titleValue,
-      'description': _descriptionValue,
-      'price': _priceValue,
-      'image': 'assets/food.jpg'
-    };
-    widget.addProduct(product);
+    widget.addProduct(_formData);
     Navigator.pushReplacementNamed(context, '/products');
   }
 
@@ -97,12 +90,14 @@ class _ProductCreatePage extends State<ProductCreatePage> {
         child: Form(
           key: _formKey,
           child: ListView(
-            padding: EdgeInsets.symmetric(horizontal: targetPadding),
+            padding: EdgeInsets.symmetric(horizontal: targetPadding / 2),
             children: <Widget>[
               _buildTitleTextField(),
               _buildDescriptionTextField(),
               _buildPriceTextField(),
-              SizedBox(height: 10.0),
+              SizedBox(
+                height: 10.0,
+              ),
               RaisedButton(
                 child: Text('Save'),
                 textColor: Colors.white,
@@ -115,7 +110,7 @@ class _ProductCreatePage extends State<ProductCreatePage> {
               //     padding: EdgeInsets.all(5.0),
               //     child: Text('My Button'),
               //   ),
-              // ),
+              // )
             ],
           ),
         ),
