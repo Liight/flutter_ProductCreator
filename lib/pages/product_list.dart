@@ -1,33 +1,35 @@
 import 'package:flutter/material.dart';
 
+import 'package:scoped_model/scoped_model.dart';
+
 import './product_edit.dart';
-import '../models/product.dart';
+// import '../models/product.dart';
+import '../scoped-models/main.dart';
 
 class ProductListPage extends StatelessWidget {
-  final Function updateProduct;
-  final Function deleteProduct;
-  final List<Product> products;
+  // final Function updateProduct;
+  // final Function deleteProduct;
+  // final List<Product> products;
 
-  ProductListPage(this.products, this.updateProduct, this.deleteProduct);
+  // ProductListPage(this.products, this.updateProduct, this.deleteProduct);
 
-Widget _buildEditButton(BuildContext context, int index) {
-  return IconButton(
-                icon: Icon(Icons.edit),
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (BuildContext context) {
-                        return ProductEditPage(
-                          product: products[index],
-                          updateProduct: updateProduct,
-                          productIndex: index,
-                        );
-                      },
-                    ),
-                  );
-                },
-              );
-}
+  Widget _buildEditButton(
+      BuildContext context, int index, MainModel model) {
+    return IconButton(
+      icon: Icon(Icons.edit),
+      onPressed: () {
+        model.selectProduct(index);
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (BuildContext context) {
+              return ProductEditPage();
+            },
+          ),
+        ).then((_) => {
+          model.selectProduct(null)});
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,34 +40,38 @@ Widget _buildEditButton(BuildContext context, int index) {
       width: 96.0,
       fit: BoxFit.fitWidth,
     );
-    return ListView.builder(
-      itemBuilder: (BuildContext context, int index) {
-        return Dismissible(
-          key: Key(products[index].title),
-          background: Container(color: Colors.red),
-          onDismissed: (DismissDirection direction) {
-            if (direction == DismissDirection.endToStart) {
-              deleteProduct(index);
-            } else if (direction == DismissDirection.startToEnd) {
-              print('Swiped start to end');
-            } else {
-              print('Other Swiping');
-            }
-          },
-          child: Column(children: <Widget>[
-            ListTile(
-              leading: CircleAvatar(
-                backgroundImage: AssetImage(products[index].image),
+    return ScopedModelDescendant<MainModel>(
+        builder: (BuildContext context, Widget child, MainModel model) {
+      return ListView.builder(
+        itemBuilder: (BuildContext context, int index) {
+          return Dismissible(
+            key: Key(model.allProducts[index].title),
+            background: Container(color: Colors.red),
+            onDismissed: (DismissDirection direction) {
+              if (direction == DismissDirection.endToStart) {
+                model.selectProduct(index);
+                model.deleteProduct();
+              } else if (direction == DismissDirection.startToEnd) {
+                print('Swiped start to end');
+              } else {
+                print('Other Swiping');
+              }
+            },
+            child: Column(children: <Widget>[
+              ListTile(
+                leading: CircleAvatar(
+                  backgroundImage: AssetImage(model.allProducts[index].image),
+                ),
+                title: Text(model.allProducts[index].title),
+                subtitle: Text('\$${model.allProducts[index].price.toString()}'),
+                trailing: _buildEditButton(context, index, model),
               ),
-              title: Text(products[index].title),
-              subtitle: Text('\$${products[index].price.toString()}'),
-              trailing: _buildEditButton(context, index),
-            ),
-            Divider(),
-          ]),
-        );
-      },
-      itemCount: products.length,
-    );
+              Divider(),
+            ]),
+          );
+        },
+        itemCount: model.allProducts.length,
+      );
+    });
   }
 }
