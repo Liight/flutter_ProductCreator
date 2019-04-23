@@ -3,15 +3,26 @@ import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
 
 import './product_edit.dart';
-// import '../models/product.dart';
 import '../scoped-models/main.dart';
 
-class ProductListPage extends StatelessWidget {
-  // final Function updateProduct;
-  // final Function deleteProduct;
-  // final List<Product> products;
+class ProductListPage extends StatefulWidget {
+  final MainModel model;
 
-  // ProductListPage(this.products, this.updateProduct, this.deleteProduct);
+  ProductListPage(this.model);
+
+@override
+  State<StatefulWidget> createState() {
+    return _ProductlistPageState();
+  }
+
+}
+
+class _ProductlistPageState extends State<ProductListPage>{
+  @override
+  initState() {
+    widget.model.fetchProducts();
+    super.initState();
+  }
 
   Widget _buildEditButton(
       BuildContext context, int index, MainModel model) {
@@ -33,13 +44,6 @@ class ProductListPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var assetImage = AssetImage("assets/png/cat.jpg");
-    var image = new Image(
-      image: assetImage,
-      height: 96.0,
-      width: 96.0,
-      fit: BoxFit.fitWidth,
-    );
     return ScopedModelDescendant<MainModel>(
         builder: (BuildContext context, Widget child, MainModel model) {
       return ListView.builder(

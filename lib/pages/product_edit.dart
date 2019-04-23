@@ -6,14 +6,6 @@ import '../models/product.dart';
 import '../scoped-models/main.dart';
 
 class ProductEditPage extends StatefulWidget {
-  // final Function addProduct;
-  // final Function updateProduct;
-  // final Product product;
-  // final int productIndex;
-
-  // ProductEditPage(
-  //     {this.addProduct, this.updateProduct, this.product, this.productIndex});
-
   @override
   State<StatefulWidget> createState() {
     return _ProductEditPageState();
@@ -61,7 +53,6 @@ class _ProductEditPageState extends State<ProductEditPage> {
         decoration: InputDecoration(labelText: 'Product Description'),
         initialValue: product == null ? '' : product.description,
         validator: (String value) {
-          // if (value.trim().length <= 0) {
           if (value.isEmpty || value.length < 10) {
             return 'Description is required and should be 10+ characters long.';
           }
@@ -97,12 +88,17 @@ class _ProductEditPageState extends State<ProductEditPage> {
   Widget _buildSubmitButton() {
     return ScopedModelDescendant<MainModel>(
       builder: (BuildContext context, Widget child, MainModel model) {
-        return RaisedButton(
-          child: Text('Save'),
-          textColor: Colors.white,
-          onPressed: () => _submitForm(model.addProduct, model.updateProduct,
-              model.selectProduct, model.selectedProductIndex),
-        );
+        return model.isLoading
+            ? Center(child: CircularProgressIndicator())
+            : RaisedButton(
+                child: Text('Save'),
+                textColor: Colors.white,
+                onPressed: () => _submitForm(
+                    model.addProduct,
+                    model.updateProduct,
+                    model.selectProduct,
+                    model.selectedProductIndex),
+              );
       },
     );
   }
@@ -129,14 +125,6 @@ class _ProductEditPageState extends State<ProductEditPage> {
                 height: 10.0,
               ),
               _buildSubmitButton()
-              // GestureDetector(
-              //   onTap: _submitForm,
-              //   child: Container(
-              //     color: Colors.green,
-              //     padding: EdgeInsets.all(5.0),
-              //     child: Text('My Button'),
-              //   ),
-              // )
             ],
           ),
         ),
@@ -157,18 +145,17 @@ class _ProductEditPageState extends State<ProductEditPage> {
         _formData['description'],
         _formData['image'],
         _formData['price'],
-      );
+      ).then((_) => Navigator.pushReplacementNamed(context, '/products')
+          .then((_) => setSelectedproduct(null)));
     } else {
       updateProduct(
         _formData['title'],
         _formData['description'],
         _formData['image'],
         _formData['price'],
-      );
+      ).then((_) => Navigator.pushReplacementNamed(context, '/products')
+          .then((_) => setSelectedproduct(null)));
     }
-
-    Navigator.pushReplacementNamed(context, '/products')
-        .then((_) => setSelectedproduct(null));
   }
 
   @override
