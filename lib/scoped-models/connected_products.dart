@@ -9,7 +9,7 @@ import '../models/user.dart';
 
 mixin ConnectedProductsModel on Model {
   List<Product> _products = [];
-  int _selProductIndex;
+  String _selProductId;
   User _authenticatedUser;
   bool _isLoading = true;
 
@@ -41,7 +41,7 @@ mixin ConnectedProductsModel on Model {
           userEmail: _authenticatedUser.email,
           userId: _authenticatedUser.id);
       _products.add(newProduct);
-      _selProductIndex = null;
+      _selProductId = null;
       _isLoading = false;
       notifyListeners();
     });
@@ -62,19 +62,27 @@ mixin ProductsModel on ConnectedProductsModel {
     return List.from(_products);
   }
 
+int get selectedProductIndex {
+  return _products.indexWhere((Product product){
+            return product.id == _selProductId;
+          });
+}
+
   bool get displayFavouritesOnly {
     return _showFavourites;
   }
 
-  int get selectedProductIndex {
-    return _selProductIndex;
+  String get selectedProductId {
+    return _selProductId;
   }
 
   Product get selectedProduct {
-    if (selectedProductIndex == null) {
+    if (_selProductId == null) {
       return null;
     }
-    return _products[selectedProductIndex];
+    return _products.firstWhere((Product product) {
+      return product.id == _selProductId;
+    });
   }
 
   Future<Null> updateProduct(
@@ -113,7 +121,7 @@ mixin ProductsModel on ConnectedProductsModel {
     _isLoading = true;
     final deletedproductId = selectedProduct.id;
     _products.removeAt(selectedProductIndex);
-    _selProductIndex = null;
+    _selProductId = null;
     notifyListeners();
     http
         .delete(
@@ -170,14 +178,10 @@ mixin ProductsModel on ConnectedProductsModel {
         userId: selectedProduct.userId);
     _products[selectedProductIndex] = updatedProduct;
     notifyListeners();
-    _selProductIndex = null;
   }
 
-  void selectProduct(int index) {
-    _selProductIndex = index;
-    if (index != null) {
-      notifyListeners();
-    }
+  void selectProduct(String productId) {
+    _selProductId = productId;
     notifyListeners();
   }
 
