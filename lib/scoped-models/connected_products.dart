@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 
 import '../models/product.dart';
 import '../models/user.dart';
+import '../hidden/key.dart';
 
 mixin ConnectedProductsModel on Model {
   List<Product> _products = [];
@@ -219,6 +220,30 @@ mixin ProductsModel on ConnectedProductsModel {
 mixin UserModel on ConnectedProductsModel {
   void login(String email, String password) {
     _authenticatedUser = User(id: 'sdjkgbfs', email: email, password: password);
+  }
+
+  Future<Map<String, dynamic>> signup(String email, String password) async {
+    final Map<String, dynamic> authData = {
+      'email': email,
+      'password': password,
+      'returnSecureToken': true
+    };
+    final http.Response response = await http.post(
+      'https://www.googleapis.com/identitytoolkit/v3/relyingparty/signupNewUser?key='+apiKey,
+      body: json.encode(authData),
+      headers: {'Content-Type': 'application/json'},
+    );
+    final Map<String, dynamic> responseData = json.decode(response.body);
+    bool hasError = true;
+    String message = 'Something went wrong.';
+    if (responseData.containsKey('idToken')) {
+      hasError = false;
+      message = 'Authentication succeeded';
+    } else if (responseData['error']['message'] == 'EMAIL_EXISTS') {
+      message = 'This email already exists';
+    }
+    print(json.decode(response.body));
+    return {'success': !hasError, 'message': message};
   }
 }
 
